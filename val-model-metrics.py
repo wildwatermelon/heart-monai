@@ -162,20 +162,11 @@ if __name__ == '__main__':
     dice_val, metric_values_bg, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
     metric_values_ao, metric_values_pa = validation()
 
-    metric_values.append(dice_val)
-    metric_values.append(metric_values_bg)
-    metric_values.append(metric_values_lv)
-    metric_values.append(metric_values_rv)
-    metric_values.append(metric_values_la)
-    metric_values.append(metric_values_ra)
-    metric_values.append(metric_values_myo)
-    metric_values.append(metric_values_ao)
-    metric_values.append(metric_values_pa)
+    resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice background: {metric_values_bg:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
+                   f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
 
-    print(
-        f"train completed, overall dice val: {dice_val:.4f} & dice background: {metric_values_bg:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} "
-        f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
-    )
+    print(resultstring)
+    metric_values.append(resultstring)
 
     results_file = open("val_model_metrics_" + get_model_name(model) + "_" + modality + ".txt", "w+")
     print(metric_values)
