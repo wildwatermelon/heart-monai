@@ -1,0 +1,8 @@
+# IDEs and editors
+.idea/*
+
+# Files
+others/*
+best_*
+results/*
+__pycache__/*
