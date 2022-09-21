@@ -27,6 +27,8 @@ model_label = "attentionunet"
 modality = "ct"
 # modality = "mr"
 
+is_background_included = False
+
 if modality == "ct":
     val_transforms = val_transforms_ct
 elif modality == "mr":
@@ -92,29 +94,46 @@ def validation():
             dice = dice_metric.aggregate().item()
             dice_vals.append(dice)
             metric_batch = dice_metric_batch.aggregate()
-            metric_bg = metric_batch[0].item()
-            metric_values_bg.append(metric_bg)
-            metric_lv = metric_batch[1].item()
-            metric_values_lv.append(metric_lv)
-            metric_rv = metric_batch[2].item()
-            metric_values_rv.append(metric_rv)
-            metric_la = metric_batch[3].item()
-            metric_values_la.append(metric_la)
-            metric_ra = metric_batch[4].item()
-            metric_values_ra.append(metric_ra)
-            metric_myo = metric_batch[5].item()
-            metric_values_myo.append(metric_myo)
-            metric_ao = metric_batch[6].item()
-            metric_values_ao.append(metric_ao)
-            metric_pa = metric_batch[7].item()
-            metric_values_pa.append(metric_pa)
+            if is_background_included == True:
+                metric_bg = metric_batch[0].item()
+                metric_values_bg.append(metric_bg)
+                metric_lv = metric_batch[1].item()
+                metric_values_lv.append(metric_lv)
+                metric_rv = metric_batch[2].item()
+                metric_values_rv.append(metric_rv)
+                metric_la = metric_batch[3].item()
+                metric_values_la.append(metric_la)
+                metric_ra = metric_batch[4].item()
+                metric_values_ra.append(metric_ra)
+                metric_myo = metric_batch[5].item()
+                metric_values_myo.append(metric_myo)
+                metric_ao = metric_batch[6].item()
+                metric_values_ao.append(metric_ao)
+                metric_pa = metric_batch[7].item()
+                metric_values_pa.append(metric_pa)
+            else:
+                metric_lv = metric_batch[0].item()
+                metric_values_lv.append(metric_lv)
+                metric_rv = metric_batch[1].item()
+                metric_values_rv.append(metric_rv)
+                metric_la = metric_batch[2].item()
+                metric_values_la.append(metric_la)
+                metric_ra = metric_batch[3].item()
+                metric_values_ra.append(metric_ra)
+                metric_myo = metric_batch[4].item()
+                metric_values_myo.append(metric_myo)
+                metric_ao = metric_batch[5].item()
+                metric_values_ao.append(metric_ao)
+                metric_pa = metric_batch[6].item()
+                metric_values_pa.append(metric_pa)
             epoch_iterator_val.set_description(
                 "Validate (%d / %d Steps) (dice=%2.5f)" % (global_step, 10.0, dice)
             )
         dice_metric.reset()
         dice_metric_batch.reset()
     print(dice_vals)
-    print(metric_values_bg)
+    if is_background_included == True:
+        print(metric_values_bg)
     print(metric_values_lv)
     print(metric_values_rv)
     print(metric_values_la)
@@ -123,7 +142,8 @@ def validation():
     print(metric_values_ao)
     print(metric_values_pa)
     mean_dice_val = np.mean(dice_vals)
-    mean_metric_values_bg = np.mean(metric_values_bg)
+    if is_background_included == True:
+        mean_metric_values_bg = np.mean(metric_values_bg)
     mean_metric_values_lv = np.mean(metric_values_lv)
     mean_metric_values_rv = np.mean(metric_values_rv)
     mean_metric_values_la = np.mean(metric_values_la)
@@ -131,8 +151,12 @@ def validation():
     mean_metric_values_myo = np.mean(metric_values_myo)
     mean_metric_values_ao = np.mean(metric_values_ao)
     mean_metric_values_pa = np.mean(metric_values_pa)
-    return mean_dice_val, mean_metric_values_bg, mean_metric_values_lv, mean_metric_values_rv, \
-           mean_metric_values_la, mean_metric_values_ra, mean_metric_values_myo, mean_metric_values_ao, mean_metric_values_pa
+    if is_background_included == True:
+        return mean_dice_val, mean_metric_values_bg, mean_metric_values_lv, mean_metric_values_rv,\
+               mean_metric_values_la, mean_metric_values_ra, mean_metric_values_myo, mean_metric_values_ao, mean_metric_values_pa
+    else:
+        return mean_dice_val, mean_metric_values_lv, mean_metric_values_rv, \
+               mean_metric_values_la, mean_metric_values_ra, mean_metric_values_myo, mean_metric_values_ao, mean_metric_values_pa
 
 def get_model_name(model):
     if isinstance(model, UNETR):
@@ -159,11 +183,15 @@ if __name__ == '__main__':
 
     model.load_state_dict(torch.load("best_metric_model_" + get_model_name(model) + "_" + modality + ".pth"), strict = False)
 
-    dice_val, metric_values_bg, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
+    dice_val, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
     metric_values_ao, metric_values_pa = validation()
 
-    resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice background: {metric_values_bg:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
-                   f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
+    if is_background_included == True:
+        resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice background: {metric_values_bg:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
+                       f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
+    else:
+        resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
+                       f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
 
     print(resultstring)
     metric_values.append(resultstring)
