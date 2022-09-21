@@ -183,13 +183,16 @@ if __name__ == '__main__':
 
     model.load_state_dict(torch.load("best_metric_model_" + get_model_name(model) + "_" + modality + ".pth"), strict = False)
 
-    dice_val, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
-    metric_values_ao, metric_values_pa = validation()
-
     if is_background_included == True:
+        dice_val, metric_values_bg, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
+        metric_values_ao, metric_values_pa = validation()
+
         resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice background: {metric_values_bg:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
                        f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
     else:
+        dice_val, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
+        metric_values_ao, metric_values_pa = validation()
+
         resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
                        f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
 
