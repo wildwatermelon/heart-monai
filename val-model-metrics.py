@@ -149,8 +149,8 @@ def get_model_name(model):
 if __name__ == '__main__':
     post_label = AsDiscrete(to_onehot=8)
     post_pred = AsDiscrete(argmax=True, to_onehot=8)
-    dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
-    dice_metric_batch = DiceMetric(include_background=True, reduction="mean_batch",get_not_nans=False)
+    dice_metric = DiceMetric(include_background=False, reduction="mean", get_not_nans=False)
+    dice_metric_batch = DiceMetric(include_background=False, reduction="mean_batch",get_not_nans=False)
     global_step = 0
     global_step_best = 0
     metric_values = []
