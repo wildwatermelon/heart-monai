@@ -26,7 +26,7 @@ num_workers = 8
 # ct_pixdim = (1.5, 1.5, 2.0)
 # mr_pixdim = (1.5, 1.5, 2.0)
 
-# goldilocks
+# goldilocks + intensity scaling
 # img_size = (48, 48, 48)
 # ct_pixdim = (2.0, 2.0, 2.0)
 # mr_pixdim = (2.5, 2.5, 4.0)
