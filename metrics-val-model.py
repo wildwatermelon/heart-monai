@@ -27,8 +27,6 @@ model_label = "attentionunet"
 modality = "ct"
 # modality = "mr"
 
-is_background_included = False
-
 if modality == "ct":
     val_transforms = val_transforms_ct
 elif modality == "mr":
@@ -61,7 +59,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 torch.backends.cudnn.benchmark = True
 
-def validation():
+def validation(is_background_included):
     model.eval()
     dice_vals = list()
     metric_values_bg = list()
@@ -173,8 +171,8 @@ def get_model_name(model):
 if __name__ == '__main__':
     post_label = AsDiscrete(to_onehot=8)
     post_pred = AsDiscrete(argmax=True, to_onehot=8)
-    dice_metric = DiceMetric(include_background=False, reduction="mean", get_not_nans=False)
-    dice_metric_batch = DiceMetric(include_background=False, reduction="mean_batch",get_not_nans=False)
+    dice_metric = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
+    dice_metric_batch = DiceMetric(include_background=True, reduction="mean_batch",get_not_nans=False)
     global_step = 0
     global_step_best = 0
     metric_values = []
@@ -183,23 +181,30 @@ if __name__ == '__main__':
 
     model.load_state_dict(torch.load("best_metric_model_" + get_model_name(model) + "_" + modality + ".pth"), strict = False)
 
-    if is_background_included == True:
-        dice_val, metric_values_bg, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
-        metric_values_ao, metric_values_pa = validation()
+    dice_val, metric_values_bg, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
+    metric_values_ao, metric_values_pa = validation(True)
 
-        resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice background: {metric_values_bg:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
-                       f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
-    else:
-        dice_val, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
-        metric_values_ao, metric_values_pa = validation()
-
-        resultstring = f"train completed, overall dice val: {dice_val:.4f} & dice LV: {metric_values_lv:.4f} & dice RV: {metric_values_rv:.4f} " \
-                       f"& dice LA: {metric_values_la:.4f} & dice RA: {metric_values_ra:.4f} & dice Myo: {metric_values_myo:.4f} & dice AO: {metric_values_ao:.4f} & dice PA: {metric_values_pa:.4f}"
+    resultstring = f"With Background: overall dice val: {dice_val:.4f} | dice background: {metric_values_bg:.4f} | dice LV: {metric_values_lv:.4f} | dice RV: {metric_values_rv:.4f} " \
+                   f"| dice LA: {metric_values_la:.4f} | dice RA: {metric_values_ra:.4f} | dice Myo: {metric_values_myo:.4f} | dice AO: {metric_values_ao:.4f} | dice PA: {metric_values_pa:.4f}"
 
     print(resultstring)
     metric_values.append(resultstring)
+    metric_values.append("\n")
 
-    results_file = open("val_model_metrics_" + get_model_name(model) + "_" + modality + ".txt", "w+")
+    dice_metric = DiceMetric(include_background=False, reduction="mean", get_not_nans=False)
+    dice_metric_batch = DiceMetric(include_background=False, reduction="mean_batch", get_not_nans=False)
+
+    dice_val, metric_values_lv, metric_values_rv, metric_values_la, metric_values_ra, metric_values_myo, \
+    metric_values_ao, metric_values_pa = validation(False)
+
+    resultstring = f"Without Background: overall dice val: {dice_val:.4f} | dice LV: {metric_values_lv:.4f} | dice RV: {metric_values_rv:.4f} " \
+                   f"| dice LA: {metric_values_la:.4f} | dice RA: {metric_values_ra:.4f} | dice Myo: {metric_values_myo:.4f} | dice AO: {metric_values_ao:.4f} | dice PA: {metric_values_pa:.4f}"
+
+    print(resultstring)
+    metric_values.append(resultstring)
+    metric_values.append("\n")
+
+    results_file = open("metrics_val_model_" + get_model_name(model) + "_" + modality + ".txt", "w+")
     print(metric_values)
     results_file.write(str(metric_values))
     results_file.close()
