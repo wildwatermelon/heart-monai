@@ -75,13 +75,13 @@ slice_map = {
     # "ct_train_1003_image.nii.gz": 50,
     # "ct_train_1004_image.nii.gz": 50,
 
-    # val
+    # val 120
     # "mr_train_1017_image.nii.gz": 50,
     # "mr_train_1018_image.nii.gz": 50,
     # "mr_train_1019_image.nii.gz": 50,
     # "mr_train_1020_image.nii.gz": 50,
 
-    # train
+    # train 120
     # "mr_train_1001_image.nii.gz": 50,
     # "mr_train_1002_image.nii.gz": 50,
     # "mr_train_1003_image.nii.gz": 50,
